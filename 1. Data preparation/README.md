@@ -50,5 +50,5 @@ The dataset contains the following columns:
 ---
 
 ## Sample Data Image
-![Gold Price Dataset Sample](houseprice.png)  
+![Gold Price Dataset Sample](image/houseprice.png)  
 
