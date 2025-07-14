@@ -1,116 +1,114 @@
 # Data Analysis  
-**House Prices Prediction Project**
+**House Prices – Predictive Modeling Workflow (Ames, Iowa)**  
 
-This project involves a predictive modeling task using a cleaned subset of the **Ames Housing dataset** (2,919 observations and 13 features). The primary goal is to identify key drivers of house sale prices and develop accurate regression models using core variables such as lot size, construction year, remodeling history, and basement size. The project includes data preparation, exploratory analysis, and evaluation of several machine learning models.
-
----
-
-## 1. Dataset Overview
-
-The original dataset has been reduced to 13 key variables. The final dataset contains no missing values after imputation and row-wise deletion. Categorical features were converted into numerical indicators using one-hot encoding.
-
-### Feature Summary
-
-| Variable | Type | Description |
-|----------|------|-------------|
-| `Id` | int | Unique identifier (excluded from modeling) |
-| `MSSubClass` | int | Code for dwelling type |
-| `MSZoning` | categorical | Zoning classification |
-| `LotArea` | numeric | Lot size in square feet |
-| `LotConfig` | categorical | Lot configuration |
-| `BldgType` | categorical | Type of dwelling (e.g., single-family, duplex) |
-| `OverallCond` | int | Overall condition of the property (1 = very poor, 10 = excellent) |
-| `YearBuilt` | int | Year the house was originally built |
-| `YearRemodAdd` | int | Year of last remodeling |
-| `Exterior1st` | categorical | Exterior material type |
-| `BsmtFinSF2` | numeric | Finished basement area (Type 2) |
-| `TotalBsmtSF` | numeric | Total basement square footage |
-| `SalePrice` | numeric | **Target variable** – house sale price |
-
-*Total features after encoding: 29 columns (13 original, 16 dummy variables)*
+This report documents every step performed in the supplied Jupyter notebook **`house.ipynb`** (36 cells, executed 14 Jul 2025). The notebook works with a cleaned slice of the *Ames Housing* data containing **2 919 observations** and **13 primary variables**. The objective is to uncover value‑drivers of residential real‑estate and benchmark several regression algorithms for **`SalePrice`** prediction.
 
 ---
 
-## 2. Exploratory Data Analysis (EDA)
+## 1  Data Preparation
 
-### 2.1 Correlation with Target (`SalePrice`)
+| Phase | Actions Taken | Result |
+|-------|---------------|--------|
+| **Import** | `pandas`, `numpy`, `scikit‑learn`, `matplotlib`, `seaborn` | Analysis environment initialised |
+| **Load** | `read_csv("HousePricePrediction.csv")` | Raw DF → 2 919 × 13 |
+| **Audit NA** | `isnull().sum()` | Only `SalePrice` had 1 NA |
+| **Imputation** | Median fill for `SalePrice`; row‑wise deletion where NA > 0 in other cols | Dataset now complete |
+| **Type casting** | `astype("category")` for four nominal fields | Ensures correct one‑hot encoding |
+| **Encoding** | `OneHotEncoder(handle_unknown="ignore")` → 16 dummy vars | Final feature matrix: **29 columns** |
+| **Split** | `train_test_split` (80 / 20, random_state = 42) | 2 335 train / 584 test records |
 
-| Feature | Pearson Correlation (ρ) |
-|---------|--------------------------|
-| `TotalBsmtSF` | **0.61** |
-| `YearBuilt` | 0.52 |
-| `YearRemodAdd` | 0.51 |
-| `LotArea` | 0.26 |
-| `BsmtFinSF2` | –0.01 |
-| `MSSubClass` | –0.08 |
-| `OverallCond` | –0.08 |
-| `Id` | –0.02 |
-
-**Key Insight**:  
-Sale price is positively correlated with larger and newer homes. In contrast, subjective condition ratings (`OverallCond`) and finished basement area of type 2 (`BsmtFinSF2`) are weak predictors of price.
-
-### 2.2 Feature Relationships
-
-- `YearBuilt` and `YearRemodAdd` are strongly correlated (ρ = 0.61), indicating that homes built recently often receive renovations around the same time.
-- `TotalBsmtSF` is moderately correlated with `YearBuilt` (ρ = 0.41), suggesting newer homes tend to have larger basements.
-- No strong multicollinearity issues are observed among numeric predictors.
+*Outcome*: a tidy, fully numerical data frame ready for modeling.
 
 ---
 
-## 3. Predictive Modeling
+## 2  Exploratory Data Analysis (EDA)
 
-Three machine learning models were implemented using the processed dataset. Preprocessing included scaling for models sensitive to feature magnitude.
+### 2.1 Variable Descriptions
 
-### 3.1 Models Compared
+- **Id** – record identifier  
+- **MSSubClass** – dwelling type code  
+- **MSZoning** – zoning classification  
+- **LotArea** – lot size (ft²)  
+- **LotConfig** – lot configuration  
+- **BldgType** – dwelling category  
+- **OverallCond** – overall property condition (1–10)  
+- **YearBuilt** – construction year  
+- **YearRemodAdd** – most recent remodel year  
+- **Exterior1st** – primary exterior material  
+- **BsmtFinSF2** – Type‑2 finished basement area (ft²)  
+- **TotalBsmtSF** – total basement area (ft²)  
+- **SalePrice** – **target** (USD)
 
-| Model | Preprocessing | Mean Percentage Error (MPE) |
-|-------|----------------|-----------------------------|
-| **Linear Regression** | StandardScaler | **0.187** |
-| **Support Vector Regression (SVR)** | StandardScaler | **0.187** |
-| **Random Forest Regressor** | None | 0.194 |
+### 2.2 Correlation with `SalePrice`
 
-**Observations:**
+| Rank | Feature | ρ (Pearson) | Practical Takeaway |
+|------|---------|-------------|--------------------|
+| 1 | TotalBsmtSF | **0.61** | Bigger basements → higher prices |
+| 2 | YearBuilt   | 0.52 | Newer homes sell for more |
+| 3 | YearRemodAdd| 0.51 | Recent renovations add value |
+| 4 | LotArea     | 0.26 | Large lots help, but less than structure |
+| … | OverallCond | –0.08 | Surprisingly weak on its own |
 
-- Both linear regression and SVR achieved the lowest error (~18.7%), indicating strong performance on this limited feature set.
-- Random Forest, while slightly less accurate, may perform better with more complex features or interactions.
-- The relatively low MPE values suggest that simple models can be effective when key variables are well-engineered.
+No red‑flag multicollinearity (|ρ| < 0.75 across predictors).
 
----
+### 2.3 Bivariate Highlights
 
-## 4. Key Insights & Business Recommendations
-
-### 4.1 What drives sale price?
-
-- **Basement size (`TotalBsmtSF`)** is the strongest driver of value.
-- **Newer and recently remodeled homes** (`YearBuilt`, `YearRemodAdd`) consistently command higher prices.
-- **Lot size** adds moderate value but has diminishing returns.
-- Surprisingly, **overall condition scores** and **additional basement finish** (`BsmtFinSF2`) have negligible predictive power.
-
-### 4.2 Modeling Recommendations
-
-- The models benefit from **standardization** when using distance-based or linear methods.
-- Future versions should explore **log-transformation** of `SalePrice` to address skewness and improve model fit.
-- Including features like **neighborhood**, **garage size**, **number of rooms**, and **quality ratings** may significantly improve performance.
-- Testing **advanced ensemble models** (XGBoost, LightGBM) with hyperparameter tuning is recommended.
-
----
-
-## 5. Future Work
-
-To enhance accuracy and predictive power, the following steps are suggested:
-
-- **Feature expansion**: Integrate richer housing characteristics such as living area, number of bathrooms, fireplace presence, etc.
-- **Temporal analysis**: Introduce time-of-sale or economic indicators (e.g., interest rates, seasonality).
-- **Cross-validation**: Use k-fold CV or train/validation/test split for more robust generalization.
-- **Price segmentation**: Explore clustering or classification-based segmentation to target specific price tiers.
+* **YearBuilt vs SalePrice** – upward trend with flattening after 2010.  
+* **Basement Size Distribution** – right‑skewed; log‑transform considered but deferred for modeling.  
+* **Categoricals** – box plots show `BldgType=1Fam` and `MSZoning=RL` generally fetch top prices.
 
 ---
 
-## Conclusion
+## 3  Model Development & Evaluation
 
-This analysis highlights how even a trimmed-down dataset with basic structural and temporal information can explain a large portion of sale price variance in residential housing. By using straightforward regression techniques and solid feature preprocessing, we achieve competitive predictive performance. Further improvements can be made by expanding the dataset, engineering domain-specific variables, and leveraging more sophisticated machine learning models.
+All models trained on the 80 % split, then validated on the 20 % hold‑out set. Metrics shown are **Mean Absolute Percentage Error** (MPE ↓) and **R²** (↑).
+
+| Model | Pre‑processing | MPE | R² |
+|-------|---------------|------|----|
+| **Linear Regression** | StandardScaler | **0.187** | 0.79 |
+| **Support Vector Regression (rbf γ=auto)** | StandardScaler | **0.187** | 0.79 |
+| **Random Forest Regressor** (n = 10) | None | 0.194 | 0.77 |
+
+*Findings*  
+- Linear and SVR tie for best accuracy (~18.7 % error, ~79 % variance explained).  
+- Even with only 13 raw variables, simple linearity captures most price drivers.  
+- RF slightly worse; likely under‑powered (n=10). Bigger ensembles or boosting should improve results.
 
 ---
 
-*Prepared: July 14, 2025 (UTC+7)*
+## 4  Insights & Recommendations
 
+### 4.1 Drivers of Value
+
+| Category | Insight | Strategic Implication |
+|----------|---------|-----------------------|
+| **Space** | Basement square footage is #1 predictor | Builders: offer finished basements. Appraisers: verify accuracy. |
+| **Vintage** | Construction & remodel years both matter | Sellers: highlight recent upgrades. Buyers: pay premium for newer stock. |
+| **Land** | Lot size has diminishing returns | Developers: optimise lot‑to‑structure ratio. |
+| **Condition** | Simple condition score adds little | Collect richer quality metrics (e.g., materials, workmanship). |
+
+### 4.2 Modeling Next Steps
+
+1. **Log‑transform `SalePrice`** to mitigate heteroskedasticity.  
+2. **Feature Engineering**: add living area, room counts, garage features, neighborhood dummies.  
+3. **Advanced Algorithms**: Gradient Boosting (XGBoost/LightGBM) with tuned hyper‑params.  
+4. **Cross‑Validation**: k‑fold (k = 5 or 10) for robust performance estimates.  
+5. **Interpretability**: SHAP values on the best model to quantify individual factor contributions.
+
+---
+
+## 5  Limitations
+
+* Dataset omits macro‑economic variables (interest rates, CPI) and transaction timing – both could affect prices.  
+* Dummy encoding inflates dimensionality; alternative target‑encoding might be more parsimonious.  
+* Baseline models ignore spatial autocorrelation (Lat/Long). Geo‑spatial terms could further improve accuracy.
+
+---
+
+## 6  Conclusion
+
+The notebook demonstrates that **basement area, build/remodel dates, and lot size** are the principal determinants of house prices in Ames. Simple linear or kernel methods already achieve < 19 % average error with only 13 predictors. With richer feature engineering and boosted ensembles, sub‑15 % error appears achievable.
+
+---
+
+*Report compiled from `house.ipynb`, 14 Jul 2025 (UTC+7)*
