@@ -48,6 +48,8 @@ A personal objective was to enhance my data analysis workflow by combining panda
   - Support Vector Regression: **0.187 MPE**, 0.79 R²
   - Random Forest Regressor (n=10): 0.194 MPE, 0.77 R²
 
+![Data](image/house1.png)
+
 - **Key Focus Areas**:
   - Price Prediction Performance
   - Effect of Structural Attributes
@@ -78,4 +80,6 @@ A personal objective was to enhance my data analysis workflow by combining panda
 - **Room for Feature Expansion**: Including location, interior details (e.g., kitchens, fireplaces), and neighborhood quality may further improve performance.
 
 ---
-*Prepared July 14, 2025*
+![Data](image/house2.png)
+![Data](image/house3.png)
+
