@@ -51,6 +51,8 @@ This report documents every step performed in the supplied Jupyter notebook **`h
 
 No red‑flag multicollinearity (|ρ| < 0.75 across predictors).
 
+![Data](image/house1.png)
+
 ### 2.3 Bivariate Highlights
 
 * **YearBuilt vs SalePrice** – upward trend with flattening after 2010.  
@@ -68,6 +70,9 @@ All models trained on the 80 % split, then validated on the 20 % hold‑out 
 | **Linear Regression** | StandardScaler | **0.187** | 0.79 |
 | **Support Vector Regression (rbf γ=auto)** | StandardScaler | **0.187** | 0.79 |
 | **Random Forest Regressor** (n = 10) | None | 0.194 | 0.77 |
+
+![Data](image/house2.png)
+
 
 *Findings*  
 - Linear and SVR tie for best accuracy (~18.7 % error, ~79 % variance explained).  
@@ -94,6 +99,8 @@ All models trained on the 80 % split, then validated on the 20 % hold‑out 
 3. **Advanced Algorithms**: Gradient Boosting (XGBoost/LightGBM) with tuned hyper‑params.  
 4. **Cross‑Validation**: k‑fold (k = 5 or 10) for robust performance estimates.  
 5. **Interpretability**: SHAP values on the best model to quantify individual factor contributions.
+
+![Data](image/house3.png)
 
 ---
 
